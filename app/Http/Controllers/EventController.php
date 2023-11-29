@@ -74,19 +74,17 @@ class EventController extends Controller
         $calendarId = 'omar.a.m.mahran@gmail.com';
  
         try {
-        
            $result= $service->events->insert($calendarId, $events);
             return redirect()->back()->with('success', 'Event added to Google Calendar successfully!');
              // Handle success
         } catch (\Exception $e) {
-            
- 
             // Log or handle the exception
-            dd($e->getMessage());
-        }
-        return response()->json([
+            return response()->json([
                 'success'=>'true',
             ]);
+            // dd($e->getMessage());
+        }
+        
         }else{
             return response()->json([
                 'success'=>'false ',
