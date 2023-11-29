@@ -10,7 +10,7 @@ use Carbon\Carbon;
 use Google\Client;
 use Google\Service\Calendar;
 use Google\Service\Calendar\Event;
-
+use Google_Service;
 use Illuminate\Http\Request;
 
 class EventController extends Controller
@@ -42,17 +42,20 @@ class EventController extends Controller
         $event=$eventService->create($data);
          if ($event){
             
-            $client = new Client();
+        $client = new Client();
+
         $client->setClientId(env('GOOGLE_CLIENT_ID'));
         $client->setClientSecret(env('GOOGLE_CLIENT_SECRET'));
         $client->setRedirectUri(env('GOOGLE_REDIRECT_URI'));
         $client->setAccessType('offline');
+        $client->setAuthConfig(storage_path('/client_secret.json'));
         $client->setApprovalPrompt('force');
         $client->setAccessToken(auth()->user()->gcalendar_access_token);
-        $client->setScopes([
-            'https://www.googleapis.com/auth/calendar',
-         ]);
+        $client->setScopes(Calendar::CALENDAR);
+
+
         $service = new Calendar($client);
+
          $events = new Event([
             'summary' =>  $request->title,
             'location' => 'Event Location',
@@ -61,24 +64,29 @@ class EventController extends Controller
                 'dateTime' => Carbon::createFromTimestamp(strtotime($request->start))->toDateTimeString(),
                 'timeZone' => 'UTC', // Set the timezone accordingly
             ],
+            // 'scopes'=>['https://www.googleapis.com/auth/calendar'],
             'end' => [
                 'dateTime' => Carbon::createFromTimestamp(strtotime($request->end))->toDateTimeString(),
                 'timeZone' => 'UTC', // Set the timezone accordingly
             ],
         ]);
-        $calendarId = 'primary';
+         
+        $calendarId = 'omar.a.m.mahran@gmail.com';
  
         try {
-          $result= $service->events->insert($calendarId, $events);
-           return redirect()->back()->with('success', 'Event added to Google Calendar successfully!');
+        
+           $result= $service->events->insert($calendarId, $events);
+            return redirect()->back()->with('success', 'Event added to Google Calendar successfully!');
              // Handle success
         } catch (\Exception $e) {
+            
+ 
             // Log or handle the exception
             dd($e->getMessage());
         }
-        // return response()->json([
-        //         'success'=>'true',
-        //     ]);
+        return response()->json([
+                'success'=>'true',
+            ]);
         }else{
             return response()->json([
                 'success'=>'false ',

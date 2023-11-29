@@ -41,8 +41,7 @@ class AuthController extends Controller
         }
 
         $user->update(['gcalendar_access_token'=>$userData->token]);
- 
-        Auth::login($user,true);
+         Auth::login($user,true);
             return redirect('/events');
         } catch (\Exception $e) {
              // Handle exceptions (e.g., user denied access)
